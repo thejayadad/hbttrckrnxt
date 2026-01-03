@@ -2,11 +2,30 @@ import prisma from "@/lib/prisma";
 import { createHabit } from "@/lib/action/habit/habit-action";
 import { updateHabit } from "@/lib/action/habit/update-habit-action";
 import { deleteHabit } from "@/lib/action/habit/delete-habit-action";
+import { auth } from "@/lib/action/user/auth";
+import { headers } from "next/headers";
+import { SignInWithGoogleButton, SignOutButton } from "@/_components/auth/google-btn";
+
+
 export default async function Home() {
   const habits = await prisma.habit.findMany()
+  const session = await auth.api.getSession({headers: await headers()})
+  const user = session?.user.id
   return (
-    <div className="px-4">
-      homePage
+    <div className="px-4 py-2">
+      <div>
+        {!session ? (
+
+          <>
+            <SignInWithGoogleButton />
+          </>
+        ) : (
+
+          <>
+            <SignOutButton />
+          </>
+        )}
+      </div>
       {habits.map((habit) => (
         <div key={habit.id} className="flex items-center space-x-1">
           <form className="flex items-center" action={updateHabit}>
